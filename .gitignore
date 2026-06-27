@@ -1,0 +1,11 @@
+# Local Environment Secrets
+.env
+
+# Local Database Files
+*.db
+sql_app.db
+
+# Python Caches & Environments
+__pycache__/
+.venv/
+.pytest_cache/
