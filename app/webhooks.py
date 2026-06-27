@@ -6,6 +6,8 @@ from app.services.github import GitHubService
 from app.services.gemini_service import GeminiService
 from app.database import SessionLocal, CodeReviewHistory
 from app.config import settings
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/webhooks",
@@ -139,3 +141,44 @@ async def github_webhook(
         "status": "ignored",
         "message": "Action skipped."
     }
+
+# Helper dependency to handle database sessions cleanly
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@router.get("/history", status_code=status.HTTP_200_OK)
+def get_review_history(db: Session = Depends(get_db)):
+    """
+    Exposes a clean query channel to inspect all compiled code 
+    reviews securely recorded in the application database layer.
+    """
+    try:
+        # Fetch the last 50 code reviews, newest first
+        records = db.query(CodeReviewHistory).order_by(CodeReviewHistory.id.desc()).limit(50).all()
+        
+        # Format the records into a clean, readable dictionary array
+        history_log = []
+        for r in records:
+            history_log.append({
+                "id": r.id,
+                "repository": r.repo_name,
+                "pr_number": r.pr_number,
+                "action_event": r.action,
+                "gemini_summary": r.ai_feedback,
+                "created_at": getattr(r, "timestamp", "N/A") # handles timestamp if you added it
+            })
+            
+        return {
+            "status": "success",
+            "total_records": len(history_log),
+            "data": history_log
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to query database logs: {str(e)}"
+        )
