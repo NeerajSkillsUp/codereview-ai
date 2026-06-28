@@ -7,7 +7,7 @@ An event-driven, asynchronous backend microservice that intercepts GitHub pull r
 ## 🗺️ Architectural Pipeline
 
 <p align="center">
-  <img src="assets/architecture-pipeline.png" alt="AI Code Review Agent Data Flow Infographic" width="100%">
+  <img src="architecture-pipeline.png" alt="AI Code Review Agent Data Flow Infographic" width="100%">
 </p>
 
 ---
