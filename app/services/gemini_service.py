@@ -29,7 +29,7 @@ class GeminiService:
         return ""
 
     def _get_github_token(self) -> str:
-        token = getattr(settings, "GITHUB_TOKEN", None) or os.getenv("GITHUB_TOKEN")
+        token = getattr(settings, "GITHUB_ACCESS_TOKEN", None) or os.getenv("GITHUB_ACCESS_TOKEN")
         if token:
             return token.strip().strip('"').strip("'")
         return ""
